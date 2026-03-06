@@ -153,7 +153,7 @@ graph TD
   mermaid.initialize({ startOnLoad:true, securityLevel:'loose' });
 
   const stage=document.getElementById('stage'),wrap=document.getElementById('wrap'),zlabel=document.getElementById('zlabel'),hint=document.getElementById('hint');
-  const MIN=0.1,MAX=4,STEP=0.15;
+  const MIN=0.05,MAX=8,STEP=0.2;
   let scale=1,tx=0,ty=0,dragging=false,sx=0,sy=0,stx=0,sty=0;
 
   function apply(anim=false){
@@ -190,12 +190,19 @@ graph TD
     if((e.ctrlKey||e.metaKey)&&e.key==='p'){e.preventDefault();window.print();}
   });
 
-  // auto-fit once mermaid renders
-  setTimeout(()=>{
+
+  function fitToWindow(){
     const vw=window.innerWidth, vh=window.innerHeight-56;
     const sw=wrap.offsetWidth, sh=wrap.offsetHeight;
-    if(sw>0&&sh>0){const fit=Math.min((vw*.88)/sw,(vh*.88)/sh,1);scale=fit;apply(true);}
-  },900);
+    if(sw>0&&sh>0){ scale=Math.min((vw*.92)/sw,(vh*.92)/sh); tx=0; ty=0; apply(true); }
+  }
+  const waitForSVG=setInterval(()=>{
+    const svg=wrap.querySelector("svg");
+    if(svg&&svg.getBoundingClientRect().width>10){
+      clearInterval(waitForSVG);
+      requestAnimationFrame(()=>requestAnimationFrame(fitToWindow));
+    }
+  },100);
 
   setTimeout(()=>hint.classList.add('hidden'),4000);
 </script>
