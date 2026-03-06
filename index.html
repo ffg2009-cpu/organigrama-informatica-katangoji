@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Organigrama — Plano Curricular</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #f0f2f8;
+      --surface:   #ffffff;
+      --border:    #d1d5e0;
+      --accent:    #3b5bdb;
+      --accent2:   #7c3aed;
+      --text:      #1e2340;
+      --muted:     #6b7280;
+      --bar-h:     56px;
+    }
+
+    html, body {
+      width: 100%; height: 100%;
+      background: var(--bg);
+      font-family: 'DM Sans', sans-serif;
+      color: var(--text);
+      overflow: hidden;
+    }
+
+    /* ── TOP BAR ── */
+    #bar {
+      position: fixed; top: 0; left: 0; right: 0;
+      height: var(--bar-h);
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 12px;
+      padding: 0 20px;
+      z-index: 100;
+      box-shadow: 0 4px 24px rgba(0,0,0,.45);
+    }
+
+    #bar .title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1rem;
+      letter-spacing: .01em;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-right: auto;
+      white-space: nowrap;
+    }
+
+    #bar .zoom-label {
+      font-size: .78rem;
+      color: var(--muted);
+      min-width: 46px;
+      text-align: center;
+    }
+
+    /* buttons */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      gap: 6px;
+      height: 36px; padding: 0 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: transparent;
+      color: var(--text);
+      font-family: inherit; font-size: .82rem; font-weight: 500;
+      cursor: pointer;
+      transition: background .15s, border-color .15s, transform .1s;
+      white-space: nowrap;
+    }
+    .btn:hover  { background: rgba(108,140,255,.12); border-color: var(--accent); }
+    .btn:active { transform: scale(.96); }
+
+    .btn.icon { width: 36px; padding: 0; border-radius: 8px; font-size: 1.05rem; }
+    .btn.primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border: none; color: #fff;
+    }
+    .btn.primary:hover { filter: brightness(1.12); }
+
+    .sep { width: 1px; height: 28px; background: var(--border); }
+
+    /* ── CANVAS AREA ── */
+    #stage {
+      position: fixed;
+      top: var(--bar-h); left: 0; right: 0; bottom: 0;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+      cursor: grab;
+      background:
+        radial-gradient(ellipse 70% 60% at 30% 40%, rgba(59,91,219,.05) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 75% 70%, rgba(124,58,237,.04) 0%, transparent 60%),
+        var(--bg);
+    }
+    #stage:active { cursor: grabbing; }
+
+    /* subtle grid */
+    #stage::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(var(--border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border) 1px, transparent 1px);
+      background-size: 40px 40px;
+      opacity: .35;
+      pointer-events: none;
+    }
+
+    #img-wrap {
+      position: absolute;
+      transform-origin: center center;
+      transition: none;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    #img-wrap img {
+      display: block;
+      max-width: none;
+      border-radius: 12px;
+      box-shadow:
+        0 0 0 1px rgba(59,91,219,.15),
+        0 24px 80px rgba(0,0,0,.15);
+      pointer-events: none;
+      -webkit-user-drag: none;
+    }
+
+    /* ── HINT ── */
+    #hint {
+      position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%);
+      font-size: .73rem; color: var(--muted);
+      background: rgba(255,255,255,.85);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 5px 14px;
+      pointer-events: none;
+      opacity: 1;
+      transition: opacity .6s;
+    }
+    #hint.hidden { opacity: 0; }
+
+    /* ── PRINT ── */
+    @media print {
+      @page { size: A4 landscape; margin: 8mm; }
+
+      #bar, #hint { display: none !important; }
+
+      html, body {
+        width: 100%; height: 100%;
+        background: #fff !important;
+        overflow: visible !important;
+      }
+
+      #stage {
+        position: static !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        background: #fff !important;
+        height: 100vh !important;
+        overflow: visible !important;
+      }
+      #stage::before { display: none; }
+
+      #img-wrap {
+        position: static !important;
+        transform: none !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      #img-wrap img {
+        max-width: 277mm !important;
+        max-height: 190mm !important;
+        width: auto !important;
+        height: auto !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div id="bar">
+  <span class="title">Plano Curricular — Engenharia Informática</span>
+
+  <button class="btn icon" id="btn-zoom-out" title="Reducir (-)">－</button>
+  <span class="zoom-label" id="zoom-label">100%</span>
+  <button class="btn icon" id="btn-zoom-in"  title="Ampliar (+)">＋</button>
+
+  <div class="sep"></div>
+  <button class="btn" id="btn-reset" title="Restablecer vista">↺ Reset</button>
+
+  <div class="sep"></div>
+  <button class="btn primary" id="btn-print" title="Imprimir en A4 apaisado">
+    🖨 Imprimir A4
+  </button>
+</div>
+
+<!-- IMAGE STAGE -->
+<div id="stage">
+  <div id="img-wrap">
+    <img id="org-img" src="organigrama.png" alt="Organigrama Plano Curricular" draggable="false" />
+  </div>
+</div>
+
+<div id="hint">Scroll para zoom · Arrastra para mover</div>
+
+<script>
+  const stage   = document.getElementById('stage');
+  const wrap    = document.getElementById('img-wrap');
+  const label   = document.getElementById('zoom-label');
+  const hint    = document.getElementById('hint');
+
+  const MIN_SCALE = 0.15;
+  const MAX_SCALE = 4.0;
+  const STEP      = 0.15;
+
+  let scale = 1, tx = 0, ty = 0;
+  let dragging = false, startX = 0, startY = 0, startTx = 0, startTy = 0;
+
+  function applyTransform(animate = false) {
+    wrap.style.transition = animate ? 'transform .25s cubic-bezier(.4,0,.2,1)' : 'none';
+    wrap.style.transform  = `translate(${tx}px, ${ty}px) scale(${scale})`;
+    label.textContent = Math.round(scale * 100) + '%';
+  }
+
+  function clampScale(s) { return Math.min(MAX_SCALE, Math.max(MIN_SCALE, s)); }
+
+  function zoomAround(newScale, cx, cy) {
+    const rect = wrap.getBoundingClientRect();
+    const imgCx = rect.left + rect.width  / 2;
+    const imgCy = rect.top  + rect.height / 2;
+    const ratio = newScale / scale;
+    tx = cx - ratio * (cx - (tx + imgCx - rect.left - rect.width/2 + tx)) ; 
+    // simpler approach: zoom towards cursor
+    tx = tx + (cx - imgCx) * (1 - ratio);
+    ty = ty + (cy - imgCy) * (1 - ratio);
+    scale = newScale;
+    applyTransform();
+  }
+
+  // ZOOM BUTTONS
+  document.getElementById('btn-zoom-in').addEventListener('click', () => {
+    scale = clampScale(scale + STEP);
+    applyTransform(true);
+  });
+  document.getElementById('btn-zoom-out').addEventListener('click', () => {
+    scale = clampScale(scale - STEP);
+    applyTransform(true);
+  });
+
+  // RESET
+  document.getElementById('btn-reset').addEventListener('click', () => {
+    scale = 1; tx = 0; ty = 0;
+    applyTransform(true);
+  });
+
+  // PRINT
+  document.getElementById('btn-print').addEventListener('click', () => window.print());
+
+  // MOUSE WHEEL ZOOM
+  stage.addEventListener('wheel', e => {
+    e.preventDefault();
+    const delta = e.deltaY > 0 ? -STEP : STEP;
+    const ns = clampScale(scale + delta);
+    zoomAround(ns, e.clientX, e.clientY);
+  }, { passive: false });
+
+  // DRAG TO PAN
+  stage.addEventListener('mousedown', e => {
+    if (e.button !== 0) return;
+    dragging = true;
+    startX = e.clientX; startY = e.clientY;
+    startTx = tx; startTy = ty;
+  });
+  window.addEventListener('mousemove', e => {
+    if (!dragging) return;
+    tx = startTx + (e.clientX - startX);
+    ty = startTy + (e.clientY - startY);
+    applyTransform();
+  });
+  window.addEventListener('mouseup', () => { dragging = false; });
+
+  // TOUCH PAN & PINCH
+  let lastDist = null, lastTouchX, lastTouchY;
+  stage.addEventListener('touchstart', e => {
+    if (e.touches.length === 1) {
+      startX = e.touches[0].clientX; startY = e.touches[0].clientY;
+      startTx = tx; startTy = ty;
+    }
+    if (e.touches.length === 2) {
+      lastDist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+    }
+  }, { passive: true });
+  stage.addEventListener('touchmove', e => {
+    e.preventDefault();
+    if (e.touches.length === 1) {
+      tx = startTx + (e.touches[0].clientX - startX);
+      ty = startTy + (e.touches[0].clientY - startY);
+      applyTransform();
+    }
+    if (e.touches.length === 2) {
+      const dist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      if (lastDist) {
+        scale = clampScale(scale * (dist / lastDist));
+        applyTransform();
+      }
+      lastDist = dist;
+    }
+  }, { passive: false });
+  stage.addEventListener('touchend', () => { lastDist = null; });
+
+  // KEYBOARD SHORTCUTS
+  window.addEventListener('keydown', e => {
+    if (e.key === '+' || e.key === '=') { scale = clampScale(scale + STEP); applyTransform(true); }
+    if (e.key === '-')                  { scale = clampScale(scale - STEP); applyTransform(true); }
+    if (e.key === '0')                  { scale = 1; tx = 0; ty = 0; applyTransform(true); }
+    if (e.key === 'p' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); window.print(); }
+  });
+
+  // hide hint after 4s
+  setTimeout(() => hint.classList.add('hidden'), 4000);
+
+  // initial fit: scale image to fill 80% of the viewport width
+  const img = document.getElementById('org-img');
+  img.onload = () => {
+    const vw = window.innerWidth;
+    const vh = window.innerHeight - 56;
+    const fitW = (vw * 0.85) / img.naturalWidth;
+    const fitH = (vh * 0.90) / img.naturalHeight;
+    scale = Math.min(fitW, fitH, 1);
+    applyTransform(true);
+  };
+</script>
+</body>
+</html>
