@@ -63,7 +63,17 @@
       position:absolute; transform-origin:center center;
       display:flex; align-items:center; justify-content:center; padding:32px;
     }
+    /* Fix Mermaid node text clipping */
+    #mermaid-box svg { overflow: visible; }
+    #mermaid-box .nodeLabel { padding: 0 10px !important; }
+    #mermaid-box .node rect,
+    #mermaid-box .node polygon,
+    #mermaid-box .node circle { overflow: visible; }
+    #mermaid-box foreignObject { overflow: visible; }
+    #mermaid-box foreignObject > div { padding: 4px 12px !important; box-sizing: border-box; }
+
     #mermaid-box {
+      overflow: visible;
       background:#fff; border-radius:14px;
       box-shadow:0 0 0 1px rgba(59,91,219,.15),0 20px 60px rgba(0,0,0,.12);
       padding:32px 40px;
@@ -85,8 +95,9 @@
       #stage { position:static !important; background:#fff !important; overflow:visible !important; height:auto !important; }
       #stage::before { display:none; }
       #wrap { position:static !important; transform:none !important; padding:0 !important; }
-      #mermaid-box { box-shadow:none !important; border-radius:0 !important; padding:0 !important; width:100% !important; }
-      #mermaid-box svg { width:277mm !important; height:auto !important; }
+    #mermaid-box {
+      overflow: visible; box-shadow:none !important; border-radius:0 !important; padding:0 !important; width:100% !important; }
+      #mermaid-box svg { width:277mm !important; height:auto !important; overflow:visible !important; }
     }
   </style>
 </head>
@@ -150,7 +161,7 @@ graph TD
 <div id="hint">Scroll para zoom · Arrastra para mover</div>
 
 <script>
-  mermaid.initialize({ startOnLoad:true, securityLevel:'loose' });
+  mermaid.initialize({ startOnLoad:true, securityLevel:'loose', flowchart:{ nodeSpacing:50, rankSpacing:60, padding:20 } });
 
   const stage=document.getElementById('stage'),wrap=document.getElementById('wrap'),zlabel=document.getElementById('zlabel'),hint=document.getElementById('hint');
   const MIN=0.05,MAX=8,STEP=0.2;
